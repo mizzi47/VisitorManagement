@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "926555271135",
+    "project_id": "visitormanagement-eb611",
+    "storage_bucket": "visitormanagement-eb611.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:926555271135:android:1f01057cc94572d1329e6a",
+        "android_client_info": {
+          "package_name": "com.io.visitorapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "926555271135-r7gq1tc7u74aa12lm56c90s6sip77rdo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFRn2IJy6OjEkddEw7jr_3xkv3lvBTE5A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "926555271135-r7gq1tc7u74aa12lm56c90s6sip77rdo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
