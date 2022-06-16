@@ -1,7 +1,6 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new
-
 import 'package:flutter/material.dart';
 import 'package:visitorapp/pages/signup.dart';
+import 'package:visitorapp/pages/visitor/visitorhome.dart';
 import 'package:visitorapp/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -175,7 +174,7 @@ class _SignInState extends State<SignIn> {
                                   final auth = FirebaseAuth.instance;
                                   auth.signInWithEmailAndPassword(email: email.text, password: password.text).then((_) {
                                     Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(builder: (context) => SignUp())
+                                        MaterialPageRoute(builder: (context) => Visitorhome())
                                     );
                                   });
                                 }
