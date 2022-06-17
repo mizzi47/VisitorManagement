@@ -3,6 +3,7 @@ import 'package:visitorapp/pages/signup.dart';
 import 'package:visitorapp/pages/visitor/visitorhome.dart';
 import 'package:visitorapp/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:visitorapp/widget.dart';
 
 class SignIn extends StatefulWidget {
   static const String id = 'mentor sample 1';
@@ -25,22 +26,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-
-    showLoaderDialog(BuildContext context){
-      AlertDialog alert=AlertDialog(
-        content: new Row(
-          children: [
-            CircularProgressIndicator(),
-            Container(margin: EdgeInsets.only(left: 7),child:Text("Loading..." )),
-          ],),
-      );
-      showDialog(barrierDismissible: false,
-        context:context,
-        builder:(BuildContext context){
-          return alert;
-        },
-      );
-    }
 
     return Scaffold(
       body: Container(
@@ -170,7 +155,6 @@ class _SignInState extends State<SignIn> {
                             child: TextButton(
                               onPressed: () async {
                                 if (formkey.currentState!.validate()) {
-                                  showLoaderDialog(context);
                                   final auth = FirebaseAuth.instance;
                                   auth.signInWithEmailAndPassword(email: email.text, password: password.text).then((_) {
                                     Navigator.of(context).pushReplacement(

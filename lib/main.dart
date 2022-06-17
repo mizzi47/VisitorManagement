@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:visitorapp/pages/signin.dart';
+import 'package:visitorapp/pages/visitor/visitorhome.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
 
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: SignIn(),
+        home: InitializationApp(),
       );
     }
   }

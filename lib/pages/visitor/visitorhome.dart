@@ -1,33 +1,31 @@
 import 'dart:async';
-import 'package:visitorapp/services/auth.dart';
+import 'package:visitorapp/widget.dart';
+import 'package:visitorapp/pages/signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:visitorapp/pages/signin.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 var document;
+String uname = '';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
-class Init{
-
+class Init {
   static Future initialize() async {
-    await _registerServices();
-    await _loadSettings();
+    await _loadFirestore();
   }
 
-  static _registerServices() async {
+  static _loadFirestore() async {
+    document =
+    await FirebaseFirestore.instance.collection('visitordetails').doc(
+        _auth.currentUser!.uid).get();
+    uname = document.data['name'].toString();
+    print(uname);
     //TODO register services
-    // document = await Firestore.instance.collection('MECHDATA').document(user.uid).get();
   }
-
-  static _loadSettings() async {
-  }
-
 }
 
 class InitializationApp extends StatelessWidget {
-
   final Future _initFuture = Init.initialize();
-
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +33,8 @@ class InitializationApp extends StatelessWidget {
       title: 'Initialization',
       home: FutureBuilder(
         future: _initFuture,
-        builder: (context, snapshot){
-          if (snapshot.connectionState == ConnectionState.done){
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
             return Visitorhome();
           } else {
             return SplashScreen();
@@ -60,15 +58,10 @@ class SplashScreen extends StatelessWidget {
   }
 }
 
-
 class Visitorhome extends StatefulWidget {
-
-  final appTitle = 'SECURIDE';
-
   @override
   _Visitorhome createState() => _Visitorhome();
 }
-
 
 class _Visitorhome extends State<Visitorhome> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
@@ -76,98 +69,55 @@ class _Visitorhome extends State<Visitorhome> {
   @override
   void initState() {
     final FirebaseAuth _auth = FirebaseAuth.instance;
+    final docRef = FirebaseFirestore.instance.collection("visitordetails").doc(
+        _auth.currentUser!.uid);
+    docRef.get().then(
+          (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        uname = data['name'];
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
     super.initState();
-    initUser();
     setState(() {});
   }
 
-  initUser() async {
-    // user = await auth.currentUser();
-  }
+  final formkey = GlobalKey<FormState>();
+
+  TextEditingController username = new TextEditingController();
+  TextEditingController email = new TextEditingController();
+  TextEditingController password = new TextEditingController();
+  TextEditingController phone = new TextEditingController();
+  TextEditingController name = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-
-    final home = Material(
-      elevation: 5.0,
-      borderRadius: BorderRadius.circular(15.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () async {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) => Visitorhome(),
-            ),
-                (route) => false,
-          );
-        },
-        child: Text("Home",
-            textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-
-    final request = Material(
-      elevation: 5.0,
-      borderRadius: BorderRadius.circular(15.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () async {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) => Visitorhome(),
-            ),
-                (route) => false,
-          );
-        },
-        child: Text("Request",
-            textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-
-    final logout = Material(
-      elevation: 5.0,
-      borderRadius: BorderRadius.circular(15.0),
-      color: Colors.red,
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width * 0.3,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () async {
-          await _auth.signOut();
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.blueGrey,
+      appBar: AppBar(
+        title: Text('VISITOR MANAGEMENT'),
+        backgroundColor: Colors.green,
+        leading: GestureDetector(
+          child: Icon(Icons.logout, color: Colors.white,),
+          onTap: () {
+            showLoaderDialog(context);
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (BuildContext context) => SignIn(),
+                builder: (BuildContext context) =>
+                    SignIn(),
               ),
                   (route) => false,
             );
-        },
-        child: Text("Logout",
-            textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.blueGrey,
-        appBar: AppBar(
-          title: Text("VISITOR HOMEPAGE"),
-          backgroundColor: Colors.green,
+          },
         ),
-        body: Column(
-          children: [
-            Column(
+      ),
+      body: Column(
+        children: [
+          Form(
+            key: formkey,
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -175,23 +125,186 @@ class _Visitorhome extends State<Visitorhome> {
                   height: 50.0,
                 ),
                 InkWell(
-                  onTap: (){},
+                  onTap: () async {
+                    print("Error getting document");
+                    final docRef = FirebaseFirestore.instance.collection(
+                        "visitordetails").doc(_auth.currentUser!.uid);
+                    docRef.get().then(
+                          (DocumentSnapshot doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        username.text = data['id'];
+                        phone.text = data['phone'];
+                        name.text = data['name'];
+                      },
+                      onError: (e) => print("Error getting document: $e"),
+                    );
+
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false, // user must tap button!
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('UPDATE PROFILE'),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                TextFormField(
+                                  onTap: () {
+                                    username.text = '';
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: "Username",
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                  ),
+                                  controller: username,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'Please enter username';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                TextFormField(
+                                  onTap: () {
+                                    phone.text = '';
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: "Phone",
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                  ),
+                                  controller: phone,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'Please enter phone';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                TextFormField(
+                                  onTap: () {
+                                    name.text = '';
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: "Name",
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                  ),
+                                  controller: name,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'Please enter name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                primary: Colors.blue,
+                              ),
+                              child: Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                primary: Colors.green,
+                              ),
+                              child: Text('SAVE'),
+                              onPressed: () async {
+                                showLoaderDialog(context);
+                                await FirebaseFirestore.instance
+                                    .collection("visitordetails")
+                                    .doc(_auth.currentUser!.uid)
+                                    .update({
+                                  "id": username.text,
+                                  "phone": phone.text,
+                                  "name": name.text
+                                });
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        Visitorhome(),
+                                  ),
+                                      (route) => false,
+                                );
+                                // showDialog(
+                                //   context: context,
+                                //   barrierDismissible: false,
+                                //   // user must tap button!
+                                //   builder: (BuildContext context) {
+                                //     return AlertDialog(
+                                //       title: Text('SAVE?'),
+                                //       content: SingleChildScrollView(
+                                //         child: ListBody(
+                                //           children: <Widget>[
+                                //             Text(
+                                //                 'Are you sure to save this changes?'),
+                                //           ],
+                                //         ),
+                                //       ),
+                                //       actions: <Widget>[
+                                //         TextButton(
+                                //           style: TextButton.styleFrom(
+                                //             primary: Colors.blue,
+                                //           ),
+                                //           child: Text('Cancel'),
+                                //           onPressed: () {
+                                //             Navigator.of(context).pop();
+                                //           },
+                                //         ),
+                                //         TextButton(
+                                //           style: TextButton.styleFrom(
+                                //             primary: Colors.green,
+                                //           ),
+                                //           child: Text('CONFIRM'),
+                                //           onPressed: () async {
+                                //             showLoaderDialog(context);
+                                //             await FirebaseFirestore.instance
+                                //                 .collection("visitordetails")
+                                //                 .doc(_auth.currentUser!.uid)
+                                //                 .update({
+                                //             "id": username.text,
+                                //             "phone": phone.text,
+                                //             "name": name.text
+                                //             });
+                                //             Navigator.of(context).pop();
+                                //             Navigator.of(context).pop();
+                                //           },
+                                //         ),
+                                //       ],
+                                //     );
+                                //   },
+                                //);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                   child: Card(
                     elevation: 8.0,
-                    margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                    margin:
+                    new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                     child: Container(
                       decoration:
                       BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
                       child: ListTile(
-                        contentPadding:
-                        EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 10.0),
                         leading: Container(
                           padding: EdgeInsets.only(right: 12.0),
                           decoration: new BoxDecoration(
                               border: new Border(
                                   right: new BorderSide(
                                       width: 1.0, color: Colors.white24))),
-                          child: Icon(Icons.account_circle, color: Colors.white),
+                          child: Icon(Icons.account_circle,
+                              color: Colors.white),
                         ),
                         title: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -199,11 +312,11 @@ class _Visitorhome extends State<Visitorhome> {
                           children: [
                             Text(
                               'UPDATE PROFILE',
-                              style: TextStyle(color: Colors.white, fontSize: 15),
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15),
                             ),
                           ],
                         ),
-
                       ),
                     ),
                   ),
@@ -216,16 +329,17 @@ class _Visitorhome extends State<Visitorhome> {
                   ),
                 ),
                 InkWell(
-                  onTap: (){},
+                  onTap: () async {},
                   child: Card(
                     elevation: 8.0,
-                    margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                    margin:
+                    new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                     child: Container(
                       decoration:
                       BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
                       child: ListTile(
-                        contentPadding:
-                        EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 10.0),
                         leading: Container(
                           padding: EdgeInsets.only(right: 12.0),
                           decoration: new BoxDecoration(
@@ -240,52 +354,11 @@ class _Visitorhome extends State<Visitorhome> {
                           children: [
                             Text(
                               'VISITS REQUEST',
-                              style: TextStyle(color: Colors.white, fontSize: 15),
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15),
                             ),
                           ],
                         ),
-
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 200.0,
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Divider(
-                    color: Colors.white,
-                  ),
-                ),
-                InkWell(
-                  onTap: (){},
-                  child: Card(
-                    elevation: 8.0,
-                    margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                    child: Container(
-                      decoration:
-                      BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
-                      child: ListTile(
-                        contentPadding:
-                        EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                        leading: Container(
-                          padding: EdgeInsets.only(right: 12.0),
-                          decoration: new BoxDecoration(
-                              border: new Border(
-                                  right: new BorderSide(
-                                      width: 1.0, color: Colors.white24))),
-                          child: Icon(Icons.widgets_rounded, color: Colors.white),
-                        ),
-                        title: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'VISITS HISTORY',
-                              style: TextStyle(color: Colors.white, fontSize: 15),
-                            ),
-                          ],
-                        ),
-
                       ),
                     ),
                   ),
@@ -299,39 +372,9 @@ class _Visitorhome extends State<Visitorhome> {
                 ),
               ],
             ),
-          ],
-        ),
-        drawer: Theme(
-          data: Theme.of(context).copyWith(
-            canvasColor: Colors.black26, //This will change the drawer background to blue.
-            //other styles
           ),
-          child: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.black38,
-                  ),
-                  accountName: null,
-                  accountEmail: Text("Login As : " + "${_auth.currentUser!.email}"),
-                ),
-                ListTile(
-                  title: home,
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: logout,
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ));
+        ],
+      ),
+    );
   }
 }
