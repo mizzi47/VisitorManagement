@@ -18,6 +18,7 @@ Map<String, String> uis = {
 };
 
 class _SignInState extends State<SignIn> {
+  Model _db = Model();
 
   TextEditingController email = new TextEditingController();
   TextEditingController password = new TextEditingController();
@@ -154,12 +155,8 @@ class _SignInState extends State<SignIn> {
                             child: TextButton(
                               onPressed: () async {
                                 if (formkey.currentState!.validate()) {
-                                  final auth = FirebaseAuth.instance;
-                                  auth.signInWithEmailAndPassword(email: email.text, password: password.text).then((_) {
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(builder: (context) => Visitorhome())
-                                    );
-                                  });
+                                  SplashScreen();
+                                  final auth = _db.signIn(email.text, password.text, context);
                                 }
                               },
                               child: Text(

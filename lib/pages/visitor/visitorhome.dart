@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:visitorapp/pages/visitor/visitorrequest.dart';
 import 'package:visitorapp/widget.dart';
-import 'package:visitorapp/pages/signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:visitorapp/services/model.dart';
 
 var document;
 String uname = '';
@@ -26,7 +26,7 @@ class Init {
   }
 }
 
-class InitializationApp extends StatelessWidget {
+class InitializeVisitor extends StatelessWidget {
   final Future _initFuture = Init.initialize();
 
   @override
@@ -66,6 +66,7 @@ class Visitorhome extends StatefulWidget {
 }
 
 class _Visitorhome extends State<Visitorhome> {
+  Model _db = Model();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   @override
@@ -106,15 +107,8 @@ class _Visitorhome extends State<Visitorhome> {
             Icons.logout,
             color: Colors.white,
           ),
-          onTap: () {
-            showLoaderDialog(context);
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => SignIn(),
-              ),
-              (route) => false,
-            );
+          onTap: () async {
+            await _db.signOut(context);
           },
         ),
       ),
