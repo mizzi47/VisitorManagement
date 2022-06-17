@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:visitorapp/pages/signup.dart';
 import 'package:visitorapp/pages/visitor/visitorhome.dart';
-import 'package:visitorapp/services/auth.dart';
+import 'package:visitorapp/services/model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:visitorapp/widget.dart';
 
@@ -18,7 +18,6 @@ Map<String, String> uis = {
 };
 
 class _SignInState extends State<SignIn> {
-  Auth _auth = Auth();
 
   TextEditingController email = new TextEditingController();
   TextEditingController password = new TextEditingController();
