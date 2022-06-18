@@ -23,46 +23,92 @@ class Model {
       MaterialPageRoute(
         builder: (BuildContext context) => SignIn(),
       ),
-          (route) => false,
+      (route) => false,
     );
   }
 
-  Future<void> signIn(String email, String password, context) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password);
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => InitializeVisitor(),
-      ),
-          (route) => false,
-    );
+  Future<String?> signIn(String email, String password) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return 'success';
+    } on FirebaseAuthException catch (e) {
+        return 'fail';
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  Future<String?> signUp(String email, password, username, phone, name) async{
+    try {
+       await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      ).then((value) {
+        print(value.user?.uid);
+        var docRef = FirebaseFirestore.instance.collection("visitordetails").doc(value.user?.uid);
+         docRef.set({
+           'id': username,
+           'name': name,
+           'phone': phone,
+         });
+      },
+       );
+      // var docRef = FirebaseFirestore.instance.collection("visitorrequest").doc(user.user?.uid);
+      // docRef.set({
+      //   'date': date2,
+      //   'name': name2,
+      //   'reason': reason2,
+      //   'status': status2,
+      //   'uid': uid2,
+      //   'docId': docRef.id
+      // });
+      return 'success';
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        return 'weak';
+      } else if (e.code == 'email-already-in-use') {
+        return 'exists';
+      } else {
+        return e.message;
+      }
+    } catch (e) {
+      return e.toString();
+    }
   }
 
   Future<void> removeRequest(String docId, context) async {
-    await FirebaseFirestore.instance.collection("visitorrequest").doc(docId).delete().then(
+    await FirebaseFirestore.instance
+        .collection("visitorrequest")
+        .doc(docId)
+        .delete()
+        .then(
           (doc) => Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => InitializeVisitorRequest(),
             ),
-                (route) => false,
+            (route) => false,
           ),
-      onError: (e) => print("Error updating document $e"),
-    );
+          onError: (e) => print("Error updating document $e"),
+        );
   }
 
   Future<List> getRequestList() async {
     requestList = [];
     QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('visitorrequest').get();
+        await FirebaseFirestore.instance.collection('visitorrequest').where("uid", isEqualTo: _auth.currentUser!.uid).get();
     final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
     print(allData);
     return allData;
   }
+
   Future<String> addRequest(
       String date2, name2, reason2, status2, uid2, context) async {
     String success = 'successfully';
-    var docRef  = FirebaseFirestore.instance.collection("visitorrequest").doc();
+    var docRef = FirebaseFirestore.instance.collection("visitorrequest").doc();
     docRef.set({
       'date': date2,
       'name': name2,
@@ -84,7 +130,8 @@ class Model {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (BuildContext context) => InitializeVisitorRequest(),
+                      builder: (BuildContext context) =>
+                          InitializeVisitorRequest(),
                     ),
                     (route) => false,
                   );
@@ -96,5 +143,4 @@ class Model {
         });
     return success;
   }
-
 }

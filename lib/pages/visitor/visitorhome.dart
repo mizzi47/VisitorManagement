@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:visitorapp/pages/visitor/visitorrequest.dart';
-import 'package:visitorapp/widget.dart';
+import 'package:visitorapp/widget.dart' as wdg;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,22 +39,9 @@ class InitializeVisitor extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             return Visitorhome();
           } else {
-            return SplashScreen();
+            return wdg.SplashScreen();
           }
         },
-      ),
-    );
-  }
-}
-
-class SplashScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent),
-        ),
       ),
     );
   }
@@ -214,7 +201,7 @@ class _Visitorhome extends State<Visitorhome> {
                               ),
                               child: Text('SAVE'),
                               onPressed: () async {
-                                showLoaderDialog(context);
+                                wdg.showLoaderDialog(context);
                                 await FirebaseFirestore.instance
                                     .collection("visitordetails")
                                     .doc(_auth.currentUser!.uid)

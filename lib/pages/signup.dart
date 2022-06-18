@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:visitorapp/pages/signin.dart';
+import 'package:visitorapp/services/model.dart';
+import 'package:visitorapp/widget.dart' as wdg;
 
 class SignUp extends StatefulWidget {
   static const String id = "sign_up_page";
@@ -11,6 +13,16 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+
+  TextEditingController username = new TextEditingController();
+  TextEditingController email = new TextEditingController();
+  TextEditingController password = new TextEditingController();
+  TextEditingController phone = new TextEditingController();
+  TextEditingController name = new TextEditingController();
+
+  final formkey = GlobalKey<FormState>();
+  Model _db = Model();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,54 +99,126 @@ class _SignUpState extends State<SignUp> {
                                   spreadRadius: 10,
                                   offset: const Offset(0, 10))
                             ]),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            TextField(
-                              decoration: InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10),
-                                  border: InputBorder.none,
-                                  hintText: "Fullname",
-                                  hintStyle: TextStyle(color: Colors.grey)),
+                        child: Form(
+                          key: formkey,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey.shade200)),
+                                  ),
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                        hintText: "Username",
+                                        hintStyle:
+                                        TextStyle(color: Colors.grey),
+                                        border: InputBorder.none),
+                                    controller: username,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter username';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey.shade200)),
+                                  ),
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                        hintText: "Email",
+                                        hintStyle:
+                                        TextStyle(color: Colors.grey),
+                                        border: InputBorder.none),
+                                    controller: email,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter email';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey.shade200)),
+                                  ),
+                                  child: TextFormField(
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                        hintText: "password",
+                                        hintStyle:
+                                        TextStyle(color: Colors.grey),
+                                        border: InputBorder.none),
+                                    controller: password,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter password';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey.shade200)),
+                                  ),
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                        hintText: "Phone number",
+                                        hintStyle:
+                                        TextStyle(color: Colors.grey),
+                                        border: InputBorder.none),
+                                    controller: phone,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter phone number';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey.shade200)),
+                                  ),
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                        hintText: "Full name",
+                                        hintStyle:
+                                        TextStyle(color: Colors.grey),
+                                        border: InputBorder.none),
+                                    controller: name,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter full name';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                            Divider(
-                              thickness: 0.5,
-                              height: 10,
-                            ),
-                            TextField(
-                              decoration: InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10),
-                                  border: InputBorder.none,
-                                  hintText: "Email",
-                                  hintStyle: TextStyle(color: Colors.grey)),
-                            ),
-                            Divider(
-                              thickness: 0.5,
-                              height: 10,
-                            ),
-                            TextField(
-                              decoration: InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10),
-                                  border: InputBorder.none,
-                                  hintText: "Phone",
-                                  hintStyle: TextStyle(color: Colors.grey)),
-                            ),
-                            Divider(
-                              thickness: 0.5,
-                              height: 10,
-                            ),
-                            TextField(
-                              decoration: InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10),
-                                  border: InputBorder.none,
-                                  hintText: "Password",
-                                  hintStyle: TextStyle(color: Colors.grey)),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -143,7 +227,49 @@ class _SignUpState extends State<SignUp> {
 
                       // #signup_button
                       MaterialButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          if (formkey.currentState!.validate()) {
+                            wdg.SplashScreen();
+                            final status = await _db.signUp(email.text, password.text, username.text, phone.text, name.text);
+                            print(status);
+                            if (status!.contains('success')) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      SignIn(),
+                                ),
+                                    (route) => false,
+                              );
+                            }
+                            else if (status!.contains('exists')){
+                              showDialog(barrierDismissible: true,
+                                context:context,
+                                builder:(BuildContext context){
+                                  return AlertDialog(
+                                    content: new Row(
+                                      children: [
+                                        Text('Email is already used'),
+                                      ],),
+                                  );
+                                },
+                              );
+                            }
+                            else if (status!.contains('weak')){
+                              showDialog(barrierDismissible: true,
+                                context:context,
+                                builder:(BuildContext context){
+                                  return AlertDialog(
+                                    content: new Row(
+                                      children: [
+                                        Text('Password is too weak'),
+                                      ],),
+                                  );
+                                },
+                              );
+                            }
+                          }
+                        },
                         height: 45,
                         minWidth: 240,
                         shape: const StadiumBorder(),

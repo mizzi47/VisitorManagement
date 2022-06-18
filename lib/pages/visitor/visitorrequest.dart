@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:visitorapp/pages/visitor/visitorhome.dart';
-import 'package:visitorapp/widget.dart';
+import 'package:visitorapp/widget.dart' as wdg;
 import 'package:visitorapp/services/model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +36,7 @@ class InitializeVisitorRequest extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             return Visitorrrequest();
           } else {
-            return SplashScreen();
+            return wdg.SplashScreen();
           }
         },
       ),
@@ -44,18 +44,18 @@ class InitializeVisitorRequest extends StatelessWidget {
   }
 }
 
-class SplashScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent),
-        ),
-      ),
-    );
-  }
-}
+// class SplashScreen extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: Center(
+//         child: CircularProgressIndicator(
+//           valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class Visitorrrequest extends StatefulWidget {
   @override
@@ -205,7 +205,7 @@ class _Visitorrrequest extends State<Visitorrrequest> {
                                     ),
                                     child: Text('Submit'),
                                     onPressed: () async {
-                                      SplashScreen();
+                                      wdg.SplashScreen();
                                       var order = await _db.addRequest(
                                           appointmentDate.text, 'name2',
                                           reason.text, 'Pending',
@@ -271,7 +271,7 @@ class _Visitorrrequest extends State<Visitorrrequest> {
                                 if (snapshot.hasData) {
                                   return _buildItem(snapshot.data);
                                 } else {
-                                  return SplashScreen();
+                                  return wdg.SplashScreen();
                                 }
                               }),
                         ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:visitorapp/pages/signup.dart';
 import 'package:visitorapp/pages/visitor/visitorhome.dart';
 import 'package:visitorapp/services/model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:visitorapp/widget.dart';
 
 class SignIn extends StatefulWidget {
@@ -26,7 +25,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -110,7 +108,7 @@ class _SignInState extends State<SignIn> {
                                     controller: email,
                                     validator: (value) {
                                       if (value!.isEmpty) {
-                                        return 'Please enter password';
+                                        return 'Please enter email';
                                       }
                                       return null;
                                     },
@@ -156,7 +154,31 @@ class _SignInState extends State<SignIn> {
                               onPressed: () async {
                                 if (formkey.currentState!.validate()) {
                                   SplashScreen();
-                                  final auth = _db.signIn(email.text, password.text, context);
+                                  final status = await _db.signIn(email.text, password.text);
+                                  print(status);
+                                  if (status!.contains('success')) {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            InitializeVisitor(),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  }
+                                  else{
+                                    showDialog(barrierDismissible: true,
+                                      context:context,
+                                      builder:(BuildContext context){
+                                        return AlertDialog(
+                                          content: new Row(
+                                            children: [
+                                              Text('No user found'),
+                                            ],),
+                                        );
+                                      },
+                                    );
+                                  }
                                 }
                               },
                               child: Text(
