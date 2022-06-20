@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:visitorapp/pages/admin/adminhome.dart';
 import 'package:visitorapp/pages/signup.dart';
 import 'package:visitorapp/pages/visitor/visitorhome.dart';
 import 'package:visitorapp/services/model.dart';
@@ -19,9 +20,12 @@ Map<String, String> uis = {
 class _SignInState extends State<SignIn> {
   Model _db = Model();
 
-  TextEditingController email = new TextEditingController();
-  TextEditingController password = new TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+  TextEditingController adm_username = TextEditingController();
+  TextEditingController adm_password = TextEditingController();
   final formkey = GlobalKey<FormState>();
+  final adm_formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +41,120 @@ class _SignInState extends State<SignIn> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 80),
+            const SizedBox(height: 60),
+            Align(
+                alignment: Alignment.centerRight,
+                child: MaterialButton(
+                  onPressed: () {
+                    showDialog(
+                      barrierDismissible: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Admin Login'),
+                          content: Container(
+                            height: 250,
+                            child: Form(
+                              key: adm_formkey,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    TextFormField(
+                                      decoration: const InputDecoration(
+                                        hintText: "Username",
+                                      ),
+                                      controller: adm_username,
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Please enter username';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    TextFormField(
+                                      obscureText: true,
+                                      decoration: const InputDecoration(
+                                        hintText: "Password",
+                                      ),
+                                      controller: adm_password,
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Please enter password';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Center(
+                                      child: TextButton(
+                                        onPressed: () async {
+                                          if (adm_formkey.currentState!
+                                              .validate()) {
+                                            if (adm_username.text == 'admin' &&
+                                                adm_password.text == '0000') {
+                                              Navigator.pushAndRemoveUntil(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (BuildContext context) =>
+                                                      InitializeAdminHome(),
+                                                ),
+                                                    (route) => false,
+                                              );
+                                            } else {
+                                              Navigator.pop(context);
+                                              showDialog(
+                                                  barrierDismissible: true,
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                        content: Text(
+                                                            'Wrong username/password'));
+                                                  });
+                                            }
+                                          }
+                                        },
+                                        child: const Text(
+                                          "Sign in",
+                                          style: TextStyle(
+                                              color: Colors.blueAccent,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          "Cancel",
+                                          style: TextStyle(
+                                              color: Colors.black26,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                      height: 20,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: const Center(child: Text('Admin'))),
+                )),
             // #login, #welcome
             Padding(
               padding: const EdgeInsets.all(20),
@@ -154,7 +271,8 @@ class _SignInState extends State<SignIn> {
                               onPressed: () async {
                                 if (formkey.currentState!.validate()) {
                                   SplashScreen();
-                                  final status = await _db.signIn(email.text, password.text);
+                                  final status = await _db.signIn(
+                                      email.text, password.text);
                                   print(status);
                                   if (status!.contains('success')) {
                                     Navigator.pushAndRemoveUntil(
@@ -165,23 +283,38 @@ class _SignInState extends State<SignIn> {
                                       ),
                                       (route) => false,
                                     );
-                                  }
-                                  else{
-                                    showDialog(barrierDismissible: true,
-                                      context:context,
-                                      builder:(BuildContext context){
+                                  } else if(status!.contains('wrong')){
+                                    showDialog(
+                                      barrierDismissible: true,
+                                      context: context,
+                                      builder: (BuildContext context) {
                                         return AlertDialog(
-                                          content: new Row(
+                                          content: Row(
                                             children: [
-                                              Text('No user found'),
-                                            ],),
+                                              const Text('Wrong Username/Password'),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }else{
+                                    showDialog(
+                                      barrierDismissible: true,
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: Row(
+                                            children: [
+                                              const Text('No user found'),
+                                            ],
+                                          ),
                                         );
                                       },
                                     );
                                   }
                                 }
                               },
-                              child: Text(
+                              child: const Text(
                                 "Sign in",
                                 style: TextStyle(
                                     color: Colors.white,
@@ -213,12 +346,12 @@ class _SignInState extends State<SignIn> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (BuildContext context) =>
-                                            SignUp(),
+                                            const SignUp(),
                                       ),
                                       (route) => false,
                                     );
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     "Sign Up",
                                     style: TextStyle(
                                         color: Colors.white,

@@ -13,7 +13,6 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-
   TextEditingController username = new TextEditingController();
   TextEditingController email = new TextEditingController();
   TextEditingController password = new TextEditingController();
@@ -116,7 +115,7 @@ class _SignUpState extends State<SignUp> {
                                     decoration: const InputDecoration(
                                         hintText: "Username",
                                         hintStyle:
-                                        TextStyle(color: Colors.grey),
+                                            TextStyle(color: Colors.grey),
                                         border: InputBorder.none),
                                     controller: username,
                                     validator: (value) {
@@ -138,7 +137,7 @@ class _SignUpState extends State<SignUp> {
                                     decoration: const InputDecoration(
                                         hintText: "Email",
                                         hintStyle:
-                                        TextStyle(color: Colors.grey),
+                                            TextStyle(color: Colors.grey),
                                         border: InputBorder.none),
                                     controller: email,
                                     validator: (value) {
@@ -161,7 +160,7 @@ class _SignUpState extends State<SignUp> {
                                     decoration: const InputDecoration(
                                         hintText: "password",
                                         hintStyle:
-                                        TextStyle(color: Colors.grey),
+                                            TextStyle(color: Colors.grey),
                                         border: InputBorder.none),
                                     controller: password,
                                     validator: (value) {
@@ -183,7 +182,7 @@ class _SignUpState extends State<SignUp> {
                                     decoration: const InputDecoration(
                                         hintText: "Phone number",
                                         hintStyle:
-                                        TextStyle(color: Colors.grey),
+                                            TextStyle(color: Colors.grey),
                                         border: InputBorder.none),
                                     controller: phone,
                                     validator: (value) {
@@ -205,7 +204,7 @@ class _SignUpState extends State<SignUp> {
                                     decoration: const InputDecoration(
                                         hintText: "Full name",
                                         hintStyle:
-                                        TextStyle(color: Colors.grey),
+                                            TextStyle(color: Colors.grey),
                                         border: InputBorder.none),
                                     controller: name,
                                     validator: (value) {
@@ -230,40 +229,66 @@ class _SignUpState extends State<SignUp> {
                         onPressed: () async {
                           if (formkey.currentState!.validate()) {
                             wdg.SplashScreen();
-                            final status = await _db.signUp(email.text, password.text, username.text, phone.text, name.text);
+                            final status = await _db.signUp(
+                                email.text,
+                                password.text,
+                                username.text,
+                                phone.text,
+                                name.text);
                             print(status);
                             if (status!.contains('success')) {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      SignIn(),
-                                ),
-                                    (route) => false,
-                              );
-                            }
-                            else if (status!.contains('exists')){
-                              showDialog(barrierDismissible: true,
-                                context:context,
-                                builder:(BuildContext context){
+                              showDialog(
+                                  barrierDismissible: true,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: new Row(
+                                        children: [
+                                          Text('Successfully Registered'),
+                                        ],
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pushAndRemoveUntil(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          SignIn(),
+                                                ),
+                                                (route) => false,
+                                              );
+                                            },
+                                            child: Text('Login now'))
+                                      ],
+                                    );
+                                  });
+                            } else if (status!.contains('exists')) {
+                              showDialog(
+                                barrierDismissible: true,
+                                context: context,
+                                builder: (BuildContext context) {
                                   return AlertDialog(
                                     content: new Row(
                                       children: [
                                         Text('Email is already used'),
-                                      ],),
+                                      ],
+                                    ),
                                   );
                                 },
                               );
-                            }
-                            else if (status!.contains('weak')){
-                              showDialog(barrierDismissible: true,
-                                context:context,
-                                builder:(BuildContext context){
+                            } else if (status!.contains('weak')) {
+                              showDialog(
+                                barrierDismissible: true,
+                                context: context,
+                                builder: (BuildContext context) {
                                   return AlertDialog(
                                     content: new Row(
                                       children: [
                                         Text('Password is too weak'),
-                                      ],),
+                                      ],
+                                    ),
                                   );
                                 },
                               );

@@ -10,7 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 var docRequest;
 
-class Init {
+class InitVR {
   static Future initialize() async {
     await _loadFirestore();
   }
@@ -24,7 +24,7 @@ class Init {
 }
 
 class InitializeVisitorRequest extends StatelessWidget {
-  final Future _initFuture = Init.initialize();
+  final Future _initFuture = InitVR.initialize();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class InitializeVisitorRequest extends StatelessWidget {
         future: _initFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Visitorrrequest();
+            return VisitorRequest();
           } else {
             return wdg.SplashScreen();
           }
@@ -43,33 +43,23 @@ class InitializeVisitorRequest extends StatelessWidget {
     );
   }
 }
-
-// class SplashScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       child: Center(
-//         child: CircularProgressIndicator(
-//           valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent),
-//         ),
-//       ),
-//     );
-//   }
 // }
 
-class Visitorrrequest extends StatefulWidget {
+class VisitorRequest extends StatefulWidget {
   @override
-  _Visitorrrequest createState() => _Visitorrrequest();
+  _VisitorRequest createState() => _VisitorRequest();
 }
 
-class _Visitorrrequest extends State<Visitorrrequest> {
+class _VisitorRequest extends State<VisitorRequest> {
   Model _db = Model();
   late Future<List> getRequestList;
+  late Future<List> getCurrentRequest;
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   @override
   void initState() {
     getRequestList = _db.getRequestList();
+    getCurrentRequest = _db.getCurrentRequest();
     super.initState();
     setState(() {});
   }
@@ -77,6 +67,7 @@ class _Visitorrrequest extends State<Visitorrrequest> {
   final formkey = GlobalKey<FormState>();
 
   TextEditingController appointmentDate = new TextEditingController();
+  TextEditingController childname = new TextEditingController();
   TextEditingController reason = new TextEditingController();
   TextEditingController username = new TextEditingController();
   TextEditingController email = new TextEditingController();
@@ -170,6 +161,24 @@ class _Visitorrrequest extends State<Visitorrrequest> {
                                       ),
                                       TextFormField(
                                         onTap: () {
+                                          childname.text = '';
+                                        },
+                                        decoration: const InputDecoration(
+                                          icon: Icon(Icons.person_outline),
+                                          hintText: "Child",
+                                          hintStyle:
+                                          TextStyle(color: Colors.grey),
+                                        ),
+                                        controller: childname,
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return 'Please enter your child name';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      TextFormField(
+                                        onTap: () {
                                           reason.text = '';
                                         },
                                         decoration: const InputDecoration(
@@ -207,7 +216,7 @@ class _Visitorrrequest extends State<Visitorrrequest> {
                                     onPressed: () async {
                                       wdg.SplashScreen();
                                       var order = await _db.addRequest(
-                                          appointmentDate.text, 'name2',
+                                          appointmentDate.text, childname.text,
                                           reason.text, 'Pending',
                                           _auth.currentUser!.uid, context);
                                     },
@@ -252,6 +261,23 @@ class _Visitorrrequest extends State<Visitorrrequest> {
                       ),
                     ),
                   ),
+                  SingleChildScrollView(
+                    child: SizedBox(
+                      child: Container(
+                        child: FutureBuilder<List>(
+                            future: getCurrentRequest,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError)
+                                return Text(snapshot.toString());
+                              if (snapshot.hasData) {
+                                return _buildItem(snapshot.data, 'current');
+                              } else {
+                                return wdg.SplashScreen();
+                              }
+                            }),
+                      ),
+                    ),
+                  ),
                   Divider(
                     color: Colors.white,
                   ),
@@ -269,7 +295,7 @@ class _Visitorrrequest extends State<Visitorrrequest> {
                                 if (snapshot.hasError)
                                   return Text(snapshot.toString());
                                 if (snapshot.hasData) {
-                                  return _buildItem(snapshot.data);
+                                  return _buildItem(snapshot.data, 'all');
                                 } else {
                                   return wdg.SplashScreen();
                                 }
@@ -287,7 +313,7 @@ class _Visitorrrequest extends State<Visitorrrequest> {
     );
   }
 
-  Widget _buildItem(List? list) {
+  Widget _buildItem(List? list, String type) {
     return ListView.builder(
       shrinkWrap: true,
       itemCount: list?.length,
@@ -296,61 +322,78 @@ class _Visitorrrequest extends State<Visitorrrequest> {
             onPressed:(){},
             icon: Icon(Icons.offline_pin_rounded, color: Colors.white));
         Color clr = Color.fromRGBO(64, 75, 96, .9);
-        if (list?[index]['status'] == 'Pending') {
+        if (list?[index]['status'] == 'Pending' && type =='current') {
           ic = IconButton(
               onPressed:(){
                 _db.removeRequest(list?[index]['docId'], context);
               },
               icon: Icon(Icons.delete, color: Colors.white));
           clr = Colors.teal;
+          return returnCard(list, index, clr, ic);
         }
         if (list?[index]['status'] == 'Rejected') {
           ic = IconButton(
               onPressed:(){},
               icon: Icon(Icons.dangerous, color: Colors.white));
           clr = Color.fromRGBO(64, 75, 96, .9);
+          return returnCard(list, index, clr, ic);
         }
-        if (list?[index]['status'] == 'Accepted') {
+        if (list?[index]['status'] == 'Approved') {
           ic = IconButton(
               onPressed:(){},
               icon: Icon(Icons.offline_pin_rounded, color: Colors.white));
           clr = Color.fromRGBO(64, 75, 96, .9);
+          return returnCard(list, index, clr, ic);
         }
-        return Card(
-          elevation: 8.0,
-          margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-          child: Container(
-            decoration: BoxDecoration(color: clr),
-            child: ListTile(
-              contentPadding:
-              EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              leading: Container(
-                padding: EdgeInsets.only(right: 12.0),
-                decoration: new BoxDecoration(
-                    border: new Border(
-                        right:
-                        new BorderSide(width: 1.0, color: Colors.white24))),
-                child: Icon(Icons.file_copy_rounded, color: Colors.white),
-              ),
-              title: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    list?[index]['date'],
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                  Text(
-                    list?[index]['status'],
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                ],
-              ),
-              trailing: ic,
-            ),
-          ),
-        );
+        return SizedBox( width: 0, height: 0);
       },
+    );
+  }
+  returnCard(List? list, int index, Color clr, IconButton ic){
+    return Card(
+      elevation: 8.0,
+      margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      child: Container(
+        decoration: BoxDecoration(color: clr),
+        child: ListTile(
+          contentPadding:
+          EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          leading: Container(
+            padding: EdgeInsets.only(right: 12.0),
+            decoration: new BoxDecoration(
+                border: new Border(
+                    right:
+                    new BorderSide(width: 1.0, color: Colors.white24))),
+            child: Icon(Icons.file_copy_rounded, color: Colors.white),
+          ),
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                list?[index]['date'],
+                style: TextStyle(color: Colors.white, fontSize: 15),
+              ),
+              Text(
+                list?[index]['status'],
+                style: TextStyle(color: Colors.yellowAccent, fontSize: 15),
+              ),
+              Divider(
+                color: Colors.white,
+              ),
+              Text('Reason: '+
+                list?[index]['reason'],
+                style: TextStyle(color: Colors.white, fontSize: 15),
+              ),
+              Text('Child: '+
+                list?[index]['childname'],
+                style: TextStyle(color: Colors.white, fontSize: 15),
+              ),
+            ],
+          ),
+          trailing: ic,
+        ),
+      ),
     );
   }
 }

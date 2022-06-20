@@ -270,7 +270,7 @@ class _Visitorhome extends State<Visitorhome> {
                   onTap: () async {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Visitorrrequest()),
+                      MaterialPageRoute(builder: (context) => VisitorRequest()),
                     );
                   },
                   child: Card(
