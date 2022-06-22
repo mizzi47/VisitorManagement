@@ -4,6 +4,7 @@ import 'package:visitorapp/pages/admin/adminhome.dart';
 import 'package:visitorapp/pages/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:visitorapp/pages/visitor/visitorhome.dart';
+import 'package:visitorapp/widget.dart';
 
 import '../pages/visitor/visitorrequest.dart';
 
@@ -18,14 +19,15 @@ class Model {
   static List<Request> requestList = [];
 
   Future<void> signOut(context) async {
-    _auth.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => SignIn(),
-      ),
-      (route) => false,
-    );
+    SplashScreen();
+    _auth.signOut().then((value) =>
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => SignIn(),
+          ),
+              (route) => false,
+        ));
   }
 
   Future<String?> signIn(String email, String password) async {
@@ -55,7 +57,7 @@ class Model {
         password: password,
       )
           .then(
-        (value) {
+            (value) {
           print(value.user?.uid);
           var docRef = FirebaseFirestore.instance
               .collection("visitordetails")
@@ -91,42 +93,42 @@ class Model {
     });
     await FirebaseFirestore.instance
         .collection("visitorrequest")
-        .doc(_auth.currentUser!.uid)
-        .collection('requests')
         .doc(docId)
         .delete()
         .then(
-          (doc) => Navigator.pushAndRemoveUntil(
+          (doc) =>
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => InitializeVisitorRequest(),
             ),
-            (route) => false,
+                (route) => false,
           ),
-          onError: (e) => print("Error updating document $e"),
-        );
+      onError: (e) => print("Error updating document $e"),
+    );
   }
 
-  Future<void> updateRequest(
-      String docId, String userId, String type, BuildContext context) async {
+  Future<void> updateRequest(String docId, String userId, String type,
+      BuildContext context) async {
     print(type);
     bool requested = false;
     var docVisitorRequest =
-        FirebaseFirestore.instance.collection("visitorrequest").doc(docId);
+    FirebaseFirestore.instance.collection("visitorrequest").doc(docId);
     var docVisitorDetails =
-        FirebaseFirestore.instance.collection("visitordetails").doc(userId);
+    FirebaseFirestore.instance.collection("visitordetails").doc(userId);
     if (type == 'Approved') {
       await docVisitorRequest.update({
         'status': 'Approved',
       });
       await docVisitorDetails.update({
         'requested': requested,
-      }).then((value) => Navigator.pushAndRemoveUntil(
+      }).then((value) =>
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => InitializeAdminHome(),
             ),
-            (route) => false,
+                (route) => false,
           ));
     }
 
@@ -136,12 +138,13 @@ class Model {
       });
       await docVisitorDetails.update({
         'requested': requested,
-      }).then((value) => Navigator.pushAndRemoveUntil(
+      }).then((value) =>
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => InitializeAdminHome(),
             ),
-            (route) => false,
+                (route) => false,
           ));
     }
   }
@@ -200,8 +203,8 @@ class Model {
     return allData;
   }
 
-  Future<String> addRequest(
-      String date2, childname2, reason2, status2, uid2, context) async {
+  Future<String> addRequest(String date2, childname2, reason2, status2, uid2,
+      context) async {
     String success = 'Success';
     String name = '';
     bool requested = true;
@@ -209,14 +212,14 @@ class Model {
         .collection("visitordetails")
         .doc(_auth.currentUser!.uid);
     visitorDoc.get().then(
-      (DocumentSnapshot doc) {
+          (DocumentSnapshot doc) {
         final data = doc.data() as Map<String, dynamic>;
         requested = data['requested'];
         name = data['name'];
 
         if (!requested) {
           var docRef =
-              FirebaseFirestore.instance.collection("visitorrequest").doc();
+          FirebaseFirestore.instance.collection("visitorrequest").doc();
           docRef.set({
             'date': date2,
             'name': name,
@@ -249,7 +252,7 @@ class Model {
                             builder: (BuildContext context) =>
                                 InitializeVisitorRequest(),
                           ),
-                          (route) => false,
+                              (route) => false,
                         );
                       },
                       child: Text('Okay'),

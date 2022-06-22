@@ -95,7 +95,26 @@ class _Visitorhome extends State<Visitorhome> {
             color: Colors.white,
           ),
           onTap: () async {
-            await _db.signOut(context);
+            showDialog(
+              barrierDismissible: true,
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Row(
+                    children: [
+                      const Text('Logout?'),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () async{
+                          await _db.signOut(context);
+                        },
+                        child: Text('Confirm'))
+                  ],
+                );
+              },
+            );
           },
         ),
       ),
@@ -131,58 +150,64 @@ class _Visitorhome extends State<Visitorhome> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('UPDATE PROFILE'),
-                          content: SingleChildScrollView(
-                            child: ListBody(
-                              children: <Widget>[
-                                TextFormField(
-                                  onTap: () {
-                                    username.text = '';
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: "Username",
-                                    hintStyle: TextStyle(color: Colors.grey),
+                          content: Container(
+                          width: MediaQuery.of(context).size.width,
+                            child: SingleChildScrollView(
+                              child: ListBody(
+                                children: <Widget>[
+                                  TextFormField(
+                                    onTap: () {
+                                      username.text = '';
+                                    },
+                                    decoration: const InputDecoration(
+                                      labelText: 'USERNAME:',
+                                      hintText: "Username",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
+                                    controller: username,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter username';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  controller: username,
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Please enter username';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                TextFormField(
-                                  onTap: () {
-                                    phone.text = '';
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: "Phone",
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                  TextFormField(
+                                    onTap: () {
+                                      phone.text = '';
+                                    },
+                                    decoration: const InputDecoration(
+                                      labelText: 'PHONE:',
+                                      hintText: "Phone",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
+                                    controller: phone,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter phone';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  controller: phone,
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Please enter phone';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                TextFormField(
-                                  onTap: () {
-                                    name.text = '';
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: "Name",
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                  TextFormField(
+                                    onTap: () {
+                                      name.text = '';
+                                    },
+                                    decoration: const InputDecoration(
+                                      labelText: 'NAME:',
+                                      hintText: "Name",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
+                                    controller: name,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter name';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  controller: name,
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Please enter name';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                           actions: <Widget>[

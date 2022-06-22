@@ -84,16 +84,35 @@ class _AdminHome extends State<AdminHome> {
         title: Text('VISITOR MANAGEMENT'),
         leading: GestureDetector(
           child: Icon(
-            Icons.arrow_back,
+            Icons.logout,
             color: Colors.white,
           ),
           onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => SignIn(),
-              ),
-              (route) => false,
+            showDialog(
+              barrierDismissible: true,
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Row(
+                    children: [
+                      const Text('Logout?'),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) => SignIn(),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                        child: Text('Confirm'))
+                  ],
+                );
+              },
             );
           },
         ),
@@ -233,28 +252,32 @@ class _AdminHome extends State<AdminHome> {
                 size: 40,
               ));
           clr = Colors.teal;
-          return returnCard(list, index, clr, ic, list?[index]['status'], context);
+          return returnCard(
+              list, index, clr, ic, list?[index]['status'], context);
         }
         if (list?[index]['status'] == 'Rejected') {
           ic = IconButton(
               onPressed: () {},
               icon: Icon(Icons.dangerous, color: Colors.white));
           clr = Color.fromRGBO(64, 75, 96, .9);
-          return returnCard(list, index, clr, ic, list?[index]['status'], context);
+          return returnCard(
+              list, index, clr, ic, list?[index]['status'], context);
         }
         if (list?[index]['status'] == 'Approved') {
           ic = IconButton(
               onPressed: () {},
               icon: Icon(Icons.offline_pin_rounded, color: Colors.white));
           clr = Color.fromRGBO(64, 75, 96, .9);
-          return returnCard(list, index, clr, ic, list?[index]['status'], context);
+          return returnCard(
+              list, index, clr, ic, list?[index]['status'], context);
         }
         return SizedBox(width: 0, height: 0);
       },
     );
   }
 
-  returnCard(List? list, int index, Color clr, IconButton ic, String type, BuildContext context) {
+  returnCard(List? list, int index, Color clr, IconButton ic, String type,
+      BuildContext context) {
     return InkWell(
       onTap: () {
         if (type == 'Pending') {
@@ -265,48 +288,90 @@ class _AdminHome extends State<AdminHome> {
               return AlertDialog(
                 title: Text('APPROVE OR REJECT'),
                 actions: [
-                  TextButton(onPressed: () {
-                    Navigator.pop(context);
-                  }, child: Text('CANCEL', style: TextStyle(color: Colors.black26),)),
-                  TextButton(onPressed: () {
-                    showDialog(
-                      barrierDismissible: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('REJECT?'),
-                          actions: [
-                            TextButton(onPressed: () {
-                              Navigator.pop(context);
-                            }, child: Text('CANCEL', style: TextStyle(color: Colors.black26),)),
-                            TextButton(onPressed: () {
-                              _db.updateRequest(list![index]['docId'], list![index]['uid'], 'Rejected', context);
-                            }, child: Text('CONFIRM', style: TextStyle(color: Colors.green),)),
-                          ],
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'CANCEL',
+                        style: TextStyle(color: Colors.black26),
+                      )),
+                  TextButton(
+                      onPressed: () {
+                        showDialog(
+                          barrierDismissible: true,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('REJECT?'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      'CANCEL',
+                                      style: TextStyle(color: Colors.black26),
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      _db.updateRequest(
+                                          list![index]['docId'],
+                                          list![index]['uid'],
+                                          'Rejected',
+                                          context);
+                                    },
+                                    child: Text(
+                                      'CONFIRM',
+                                      style: TextStyle(color: Colors.green),
+                                    )),
+                              ],
+                            );
+                          },
                         );
                       },
-                    );
-                  }, child: Text('REJECT', style: TextStyle(color: Colors.red),)),
-                  TextButton(onPressed: () {
-                    showDialog(
-                      barrierDismissible: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('CONFIRM?'),
-                          actions: [
-                            TextButton(onPressed: () {
-                              Navigator.pop(context);
-                            }, child: Text('CANCEL', style: TextStyle(color: Colors.black26),)),
-                            TextButton(onPressed: () {
-                              _db.updateRequest(list![index]['docId'], list![index]['uid'], 'Approved', context);
-                            }, child: Text('CONFIRM', style: TextStyle(color: Colors.green),)),
-                          ],
+                      child: Text(
+                        'REJECT',
+                        style: TextStyle(color: Colors.red),
+                      )),
+                  TextButton(
+                      onPressed: () {
+                        showDialog(
+                          barrierDismissible: true,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('CONFIRM?'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      'CANCEL',
+                                      style: TextStyle(color: Colors.black26),
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      _db.updateRequest(
+                                          list![index]['docId'],
+                                          list![index]['uid'],
+                                          'Approved',
+                                          context);
+                                    },
+                                    child: Text(
+                                      'CONFIRM',
+                                      style: TextStyle(color: Colors.green),
+                                    )),
+                              ],
+                            );
+                          },
                         );
                       },
-                    );
-
-                  }, child: Text('APPROVE', style: TextStyle(color: Colors.green),)),
+                      child: Text(
+                        'APPROVE',
+                        style: TextStyle(color: Colors.green),
+                      )),
                 ],
               );
             },
