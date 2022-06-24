@@ -1,5 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_html_to_pdf/flutter_html_to_pdf.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
 import 'package:visitorapp/widget.dart' as wdg;
 import 'package:visitorapp/services/model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -64,6 +69,7 @@ class _AdminHome extends State<AdminHome> {
   int _currentPage = 0;
   final _pageController = PageController();
   final formkey = GlobalKey<FormState>();
+  String generatedPdfFilePath = '';
 
   TextEditingController appointmentDate = new TextEditingController();
   TextEditingController childname = new TextEditingController();
@@ -127,17 +133,32 @@ class _AdminHome extends State<AdminHome> {
                 height: 500,
                 child: Column(
                   children: [
-                    Card(
-                      margin: new EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 6.0),
-                      child: Container(
-                        height: 40,
-                        width: 1000,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Card(
+                            margin: new EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 6.0),
+                            child: Container(
+                              height: 40,
+                              width: 1000,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                              ),
+                              child: Center(
+                                  child: Text('APPROVE OR REJECT REQUEST')),
+                            ),
+                          ),
                         ),
-                        child: Center(child: Text('APPROVE OR REJECT REQUEST')),
-                      ),
+                        Container(
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  wdg.SplashScreen();
+                                  await generateMyRequest('pending');
+                                  await _generatePdf();
+                                },
+                                child: Icon(Icons.print))),
+                      ],
                     ),
                     FutureBuilder<List>(
                         future: getPendingRequestList,
@@ -145,7 +166,10 @@ class _AdminHome extends State<AdminHome> {
                           if (snapshot.hasError)
                             return Text(snapshot.toString());
                           if (snapshot.hasData) {
-                            return _buildItem(snapshot.data, context);
+                            return Container(
+                              height: 500,
+                              child: _buildItem(snapshot.data, context),
+                            );
                           } else {
                             return wdg.SplashScreen();
                           }
@@ -162,25 +186,42 @@ class _AdminHome extends State<AdminHome> {
                 height: 500,
                 child: Column(
                   children: [
-                    Card(
-                      margin: new EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 6.0),
-                      child: Container(
-                        height: 40,
-                        width: 1000,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Card(
+                            margin: new EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 6.0),
+                            child: Container(
+                              height: 40,
+                              width: 1000,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                              ),
+                              child: Center(child: Text('APPROVED REQUEST')),
+                            ),
+                          ),
                         ),
-                        child: Center(child: Text('APPROVED REQUEST')),
-                      ),
+                        Container(
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  wdg.SplashScreen();
+                                  await generateMyRequest('approved');
+                                  await _generatePdf();
+                                },
+                                child: Icon(Icons.print))),
+                      ],
                     ),
                     FutureBuilder<List>(
                         future: getApprovedRequestList,
                         builder: (context, snapshot) {
                           if (snapshot.hasError)
-                            return Text(snapshot.toString());
+                            return Flexible(
+                                child: Text('Error in fetching data...'));
                           if (snapshot.hasData) {
-                            return _buildItem(snapshot.data, context);
+                            return Flexible(
+                              child: _buildItem(snapshot.data, context),
+                            );
                           } else {
                             return wdg.SplashScreen();
                           }
@@ -197,17 +238,31 @@ class _AdminHome extends State<AdminHome> {
                 height: 500,
                 child: Column(
                   children: [
-                    Card(
-                      margin: new EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 6.0),
-                      child: Container(
-                        height: 40,
-                        width: 1000,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Card(
+                            margin: new EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 6.0),
+                            child: Container(
+                              height: 40,
+                              width: 1000,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                              ),
+                              child: Center(child: Text('REJECTED REQUEST')),
+                            ),
+                          ),
                         ),
-                        child: Center(child: Text('REJECTED REQUEST')),
-                      ),
+                        Container(
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  wdg.SplashScreen();
+                                  await generateMyRequest('rejected');
+                                  await _generatePdf();
+                                },
+                                child: Icon(Icons.print))),
+                      ],
                     ),
                     FutureBuilder<List>(
                         future: getRejectedRequestList,
@@ -215,7 +270,10 @@ class _AdminHome extends State<AdminHome> {
                           if (snapshot.hasError)
                             return Text(snapshot.toString());
                           if (snapshot.hasData) {
-                            return _buildItem(snapshot.data, context);
+                            return Container(
+                              height: 500,
+                              child: _buildItem(snapshot.data, context),
+                            );
                           } else {
                             return wdg.SplashScreen();
                           }
@@ -462,5 +520,70 @@ class _AdminHome extends State<AdminHome> {
         ),
       ),
     );
+  }
+
+  Future<void> generateMyRequest(String type) async {
+    List? list;
+    if (type == 'pending') {
+      list = await getPendingRequestList;
+    }else if(type == 'approved'){
+      list = await getApprovedRequestList;
+    }
+    else{
+      list = await getRejectedRequestList;
+    }
+
+    var htmlContent = """
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td, p {
+          padding: 5px;
+          text-align: left;
+        }
+        </style>
+      </head>
+      <body>
+        <h2>Application Form</h2>
+        
+        <table style="width:100%">
+          <caption>Application Details</caption>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Child Name</th>
+            <th>Reason</th>
+          </tr>""";
+    for (int i = 0; i < list.length; i++) {
+      htmlContent += """"<tr>
+          <td>${list[i]['name']}</td>
+          <td>${list[i]['date']}</td>
+          <td>${list[i]['childname']}</td>
+          <td>${list[i]['reason']}</td>
+          </tr>""";
+    }
+    htmlContent += """"</table>
+      </body>
+    </html>
+    """;
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    final targetPath = appDocDir.path;
+    final targetFileName = "example-pdf";
+
+    final generatedPdfFile = await FlutterHtmlToPdf.convertFromHtmlContent(
+        htmlContent, targetPath, targetFileName);
+    generatedPdfFilePath = generatedPdfFile.path;
+  }
+
+  Future<Uint8List> _generatePdf() async {
+    File f = File(generatedPdfFilePath);
+    Uint8List bytes = f.readAsBytesSync();
+    await Printing.layoutPdf(onLayout: (_) => bytes.buffer.asUint8List());
+    return bytes;
   }
 }

@@ -341,28 +341,28 @@ class _VisitorRequest extends State<VisitorRequest> {
               },
               icon: Icon(Icons.delete, color: Colors.white));
           clr = Colors.teal;
-          return returnCard(list, index, clr, ic, context);
+          return returnCard(list, index, true, clr, ic, context);
         }
         if (list?[index]['status'] == 'Rejected') {
           ic = IconButton(
               onPressed: () {},
               icon: Icon(Icons.dangerous, color: Colors.white));
           clr = Color.fromRGBO(64, 75, 96, .9);
-          return returnCard(list, index, clr, ic, context);
+          return returnCard(list, index, false, clr, ic, context);
         }
         if (list?[index]['status'] == 'Approved') {
           ic = IconButton(
               onPressed: () {},
               icon: Icon(Icons.offline_pin_rounded, color: Colors.white));
           clr = Color.fromRGBO(64, 75, 96, .9);
-          return returnCard(list, index, clr, ic, context);
+          return returnCard(list, index, false, clr, ic, context);
         }
         return SizedBox(width: 0, height: 0);
       },
     );
   }
 
-  returnCard(List? list, int index, Color clr, IconButton ic, context) {
+  returnCard(List? list, int index, bool pending, Color clr, IconButton ic, context) {
     return Card(
       elevation: 8.0,
       margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
@@ -371,9 +371,9 @@ class _VisitorRequest extends State<VisitorRequest> {
         child: ListTile(
           contentPadding:
               EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-          leading: IconButton(
+          leading: pending? IconButton(
               onPressed: () async {
-                generateExampleDocument(
+                generateMyRequest(
                   list?[index]['date'],
                   list?[index]['name'],
                   list?[index]['childname'],
@@ -381,7 +381,7 @@ class _VisitorRequest extends State<VisitorRequest> {
                 );
                 _generatePdf();
               },
-              icon: Icon(Icons.print)),
+              icon: Icon(Icons.print)) : SizedBox.shrink(),
           title: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,7 +413,7 @@ class _VisitorRequest extends State<VisitorRequest> {
     );
   }
 
-  Future<void> generateExampleDocument(
+  Future<void> generateMyRequest(
       String date, name, childname, reason) async {
     final htmlContent = """
     <!DOCTYPE html>
