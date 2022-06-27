@@ -228,7 +228,7 @@ class _SignUpState extends State<SignUp> {
                       MaterialButton(
                         onPressed: () async {
                           if (formkey.currentState!.validate()) {
-                            wdg.SplashScreen();
+                            wdg.showLoaderDialog(context);
                             final status = await _db.signUp(
                                 email.text,
                                 password.text,

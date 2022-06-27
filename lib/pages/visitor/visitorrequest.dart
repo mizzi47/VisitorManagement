@@ -223,14 +223,14 @@ class _VisitorRequest extends State<VisitorRequest> {
                                     ),
                                     child: Text('Submit'),
                                     onPressed: () async {
-                                      wdg.SplashScreen();
+                                      wdg.showLoaderDialog(context);
                                       var order = await _db.addRequest(
                                           appointmentDate.text,
                                           childname.text,
                                           reason.text,
                                           'Pending',
                                           _auth.currentUser!.uid,
-                                          context);
+                                          context).then((value) => Navigator.pop(context));
                                     },
                                   ),
                                 ],
@@ -373,6 +373,7 @@ class _VisitorRequest extends State<VisitorRequest> {
               EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           leading: pending? IconButton(
               onPressed: () async {
+                wdg.showLoaderDialog(context);
                 generateMyRequest(
                   list?[index]['date'],
                   list?[index]['name'],

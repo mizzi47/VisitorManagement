@@ -153,9 +153,8 @@ class _AdminHome extends State<AdminHome> {
                         Container(
                             child: ElevatedButton(
                                 onPressed: () async {
-                                  wdg.SplashScreen();
                                   await generateMyRequest('pending');
-                                  await _generatePdf();
+                                  _generatePdf();
                                 },
                                 child: Icon(Icons.print))),
                       ],
@@ -205,9 +204,8 @@ class _AdminHome extends State<AdminHome> {
                         Container(
                             child: ElevatedButton(
                                 onPressed: () async {
-                                  wdg.SplashScreen();
                                   await generateMyRequest('approved');
-                                  await _generatePdf();
+                                  _generatePdf();
                                 },
                                 child: Icon(Icons.print))),
                       ],
@@ -257,9 +255,8 @@ class _AdminHome extends State<AdminHome> {
                         Container(
                             child: ElevatedButton(
                                 onPressed: () async {
-                                  wdg.SplashScreen();
                                   await generateMyRequest('rejected');
-                                  await _generatePdf();
+                                  _generatePdf();
                                 },
                                 child: Icon(Icons.print))),
                       ],
@@ -373,11 +370,12 @@ class _AdminHome extends State<AdminHome> {
                                     )),
                                 TextButton(
                                     onPressed: () {
+                                      wdg.showLoaderDialog(context);
                                       _db.updateRequest(
                                           list![index]['docId'],
                                           list![index]['uid'],
                                           'Rejected',
-                                          context);
+                                          context).then((value) => Navigator.pop(context));
                                     },
                                     child: Text(
                                       'CONFIRM',
@@ -411,11 +409,12 @@ class _AdminHome extends State<AdminHome> {
                                     )),
                                 TextButton(
                                     onPressed: () {
+                                      wdg.showLoaderDialog(context);
                                       _db.updateRequest(
                                           list![index]['docId'],
                                           list![index]['uid'],
                                           'Approved',
-                                          context);
+                                          context).then((value) => Navigator.pop(context));
                                     },
                                     child: Text(
                                       'CONFIRM',
@@ -548,10 +547,8 @@ class _AdminHome extends State<AdminHome> {
         }
         </style>
       </head>
-      <body>
-        <h2>Application Form</h2>
-        
-        <table style="width:100%">
+      <body><h2>Application Form</h2>
+        <table style='width:100%'>
           <caption>Application Details</caption>
           <tr>
             <th>Name</th>
@@ -573,7 +570,7 @@ class _AdminHome extends State<AdminHome> {
     """;
     Directory appDocDir = await getApplicationDocumentsDirectory();
     final targetPath = appDocDir.path;
-    final targetFileName = "example-pdf";
+    final targetFileName = "VisitorList-pdf";
 
     final generatedPdfFile = await FlutterHtmlToPdf.convertFromHtmlContent(
         htmlContent, targetPath, targetFileName);

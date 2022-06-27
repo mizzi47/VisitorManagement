@@ -108,7 +108,8 @@ class _Visitorhome extends State<Visitorhome> {
                   actions: [
                     TextButton(
                         onPressed: () async{
-                          await _db.signOut(context);
+                          wdg.showLoaderDialog(context);
+                          await _db.signOut(context).then((value) => Navigator.pop(context));
                         },
                         child: Text('Confirm'))
                   ],

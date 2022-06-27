@@ -3,7 +3,7 @@ import 'package:visitorapp/pages/admin/adminhome.dart';
 import 'package:visitorapp/pages/signup.dart';
 import 'package:visitorapp/pages/visitor/visitorhome.dart';
 import 'package:visitorapp/services/model.dart';
-import 'package:visitorapp/widget.dart';
+import 'package:visitorapp/widget.dart' as wdg;
 
 class SignIn extends StatefulWidget {
   static const String id = 'mentor sample 1';
@@ -270,7 +270,7 @@ class _SignInState extends State<SignIn> {
                             child: TextButton(
                               onPressed: () async {
                                 if (formkey.currentState!.validate()) {
-                                  SplashScreen();
+                                  wdg.showLoaderDialog(context);
                                   final status = await _db.signIn(
                                       email.text, password.text);
                                   print(status);
@@ -284,6 +284,7 @@ class _SignInState extends State<SignIn> {
                                       (route) => false,
                                     );
                                   } else if(status!.contains('wrong')){
+                                    Navigator.pop(context);
                                     showDialog(
                                       barrierDismissible: true,
                                       context: context,
@@ -298,6 +299,7 @@ class _SignInState extends State<SignIn> {
                                       },
                                     );
                                   }else{
+                                    Navigator.pop(context);
                                     showDialog(
                                       barrierDismissible: true,
                                       context: context,
